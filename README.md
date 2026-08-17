@@ -6,6 +6,14 @@
 
 ---
 
+## Highlights
+
+- **Production-grade MCP transport** — Streamable HTTP (not demo SSE) for real remote deployments
+- **OAuth 2.1 scoped delegation (RFC 7523)** — short-lived JWT identity for machine-to-machine agents, no static client secrets
+- **OWASP MCP Top 10 hardened** — schema pinning (MCP05), tool-poisoning defense (MCP03), auth (MCP01), access control (MCP08)
+- **Immutable, tamper-evident audit logging** — every tool call is traceable and non-repudiable
+- **Verified safety** — MCP Inspector integration tests before release
+
 ## Why this exists
 
 Autonomous agents need a safe, auditable way to call enterprise tools. Vanilla MCP servers expose tools with weak auth and no hardening — a poisoned tool definition, an over-privileged token, or a tampered audit trail is a real incident waiting to happen.
@@ -23,6 +31,14 @@ flowchart LR
     MCP --> Audit[(Immutable audit log)]
     MCP --> Inspector[MCP Inspector tests]
 ```
+
+**Request flow**
+1. Agent authenticates → receives a **scoped, short-lived JWT** (OAuth 2.1 Client Credentials / RFC 7523)
+2. Agent calls a tool over **Streamable HTTP** with its token
+3. Router verifies token + scope, validates the input against the **pinned Pydantic schema**
+4. Tool executes under least-privilege
+5. Every call is written to the **immutable audit log**
+6. All behavior is verified with **MCP Inspector** integration tests
 
 ## Key design decisions
 
